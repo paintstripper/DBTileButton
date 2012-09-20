@@ -3,8 +3,6 @@ DBTileButton
 
 A metro themed UIButton subclass with animations for iOS.
 
-Daniel Beard
-
 http://danielbeard.wordpress.com
 
 http://github.com/paintstripper
