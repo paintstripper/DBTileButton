@@ -77,6 +77,11 @@ CATransform3DMake(CGFloat m11, CGFloat m12, CGFloat m13, CGFloat m14,
     self.layer.shadowOpacity = 1;
     self.layer.shadowRadius = 10.0;
     
+    //set shadow path
+    self.layer.masksToBounds = NO;
+    UIBezierPath *path = [UIBezierPath bezierPathWithRect:self.bounds];
+    self.layer.shadowPath = path.CGPath;
+    
     [self addTarget:self action:@selector(touchDown:forEvent:) forControlEvents:UIControlEventTouchDown];
     [self addTarget:self action:@selector(touchUp:) forControlEvents:UIControlEventTouchUpInside | UIControlEventTouchUpOutside];
 }
