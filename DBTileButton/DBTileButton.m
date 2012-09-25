@@ -40,7 +40,10 @@ CATransform3DMake(CGFloat m11, CGFloat m12, CGFloat m13, CGFloat m14,
 	return t;
 }
 
-@implementation DBTileButton
+@implementation DBTileButton {
+    CGSize originalSize;
+    CGPoint originalCenter;
+}
 
 - (id)initWithFrame:(CGRect)frame
 {
@@ -71,6 +74,14 @@ CATransform3DMake(CGFloat m11, CGFloat m12, CGFloat m13, CGFloat m14,
 
 -(void) commonInit {
     
+    //enable the shadow
+    [self enableShadow];
+    
+    [self addTarget:self action:@selector(touchDown:forEvent:) forControlEvents:UIControlEventTouchDown];
+    [self addTarget:self action:@selector(touchUp:) forControlEvents:UIControlEventTouchUpInside | UIControlEventTouchUpOutside];
+}
+
+-(void) enableShadow {
     //shadow part
     self.layer.shadowColor = [UIColor blackColor].CGColor;
     self.layer.shadowOffset = CGSizeMake(0, 5);
@@ -81,9 +92,10 @@ CATransform3DMake(CGFloat m11, CGFloat m12, CGFloat m13, CGFloat m14,
     self.layer.masksToBounds = NO;
     UIBezierPath *path = [UIBezierPath bezierPathWithRect:self.bounds];
     self.layer.shadowPath = path.CGPath;
-    
-    [self addTarget:self action:@selector(touchDown:forEvent:) forControlEvents:UIControlEventTouchDown];
-    [self addTarget:self action:@selector(touchUp:) forControlEvents:UIControlEventTouchUpInside | UIControlEventTouchUpOutside];
+}
+
+-(void) disableShadow {
+    self.layer.shadowColor = [UIColor clearColor].CGColor;
 }
 
 -(void)setAnchorPoint:(CGPoint)anchorPoint forView:(UIView *)view
@@ -112,12 +124,19 @@ CATransform3DMake(CGFloat m11, CGFloat m12, CGFloat m13, CGFloat m14,
         CATransform3D transform = CATransform3DMakeRotation(0, 1, 0, 0);
         transform.m34 = 1.0 / -500;
         sender.layer.transform = transform;
+        sender.layer.frame = CGRectMake(sender.layer.frame.origin.x, sender.layer.frame.origin.y, originalSize.width, originalSize.height);
+        
+        sender.center = originalCenter;
+        [((DBTileButton*)sender) enableShadow];
     } completion:^(BOOL finished) {
         sender.layer.zPosition = 0;
+
     }];
 }
 
 -(void) touchDown: (UIButton*) sender forEvent:(UIEvent*)event{
+    
+    originalSize = sender.layer.frame.size;
     
     //get touch location
     UITouch *touch = [[event touchesForView:sender] anyObject];
@@ -127,8 +146,25 @@ CATransform3DMake(CGFloat m11, CGFloat m12, CGFloat m13, CGFloat m14,
     CGFloat a = (sender.frame.size.width / 2.0f) - location.x;
     CGFloat b = (sender.frame.size.height / 2.0f) - location.y;
     
+    [self setAnchorPoint:CGPointMake(0.5f, 0.5f) forView:sender];
+    
     //the 3d perspective transform
     CATransform3D transform3d;
+    
+    originalCenter = sender.center;
+    
+    if (fabs(a) < sender.frame.size.width / 4.0f && fabs(b) < sender.frame.size.height / 4.0f) {
+        [self setAnchorPoint:CGPointMake(0.5f, 0.5f) forView:sender];
+        [UIView animateWithDuration:0.01 animations:^{
+            sender.layer.zPosition = 10000;
+            sender.layer.frame = CGRectMake(sender.layer.frame.origin.x, sender.layer.frame.origin.y, originalSize.width * 0.8, originalSize.height * 0.8);
+            sender.center = originalCenter;
+            [((DBTileButton*)sender) disableShadow];
+        } completion:^(BOOL finished) {
+
+        }];
+        return;
+    }
     
     //x distance is greater
     if (fabs(a) > fabs(b))
@@ -144,7 +180,6 @@ CATransform3DMake(CGFloat m11, CGFloat m12, CGFloat m13, CGFloat m14,
             transform3d = CATransform3DMakePerspective(0 , -0.0005);
     
     
-    [self setAnchorPoint:CGPointMake(0.5f, 0.5f) forView:sender];
     [UIView animateWithDuration:0.01 animations:^{
         sender.layer.zPosition = 10000;
         sender.layer.transform = transform3d;
