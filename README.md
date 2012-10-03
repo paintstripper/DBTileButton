@@ -1,7 +1,7 @@
 DBTileButton
 ============
 
-A metro themed UIButton subclass with animations for iOS.
+A metro themed UIButton subclass with perspective touch animations for iOS.
 
 http://danielbeard.wordpress.com
 
