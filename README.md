@@ -5,6 +5,8 @@ A metro themed UIButton subclass with perspective touch animations for iOS.
 
 http://danielbeard.wordpress.com
 
+http://github.com/daniel-beard
+
 http://github.com/paintstripper
 
 Copyright (C) 2012 Daniel Beard
